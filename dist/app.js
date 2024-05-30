@@ -10,6 +10,7 @@ const dotenv_1 = __importDefault(require("dotenv")); // ENV Variables
 const googleapis_1 = require("googleapis");
 const body_parser_1 = __importDefault(require("body-parser"));
 const blogRouter_1 = __importDefault(require("./routes/blogRouter"));
+const postsRouter_1 = __importDefault(require("./routes/postsRouter"));
 dotenv_1.default.config({ path: "./.env" }); //configure path to the env file where we store all the important keys
 exports.app = (0, express_1.default)();
 const OAuth2 = googleapis_1.google.auth.OAuth2;
@@ -39,18 +40,5 @@ exports.app.use((req, res, next) => {
     next();
 });
 exports.app.use("/api/v1/blog", blogRouter_1.default);
-exports.app.get("/blogger/posts", async (req, res, next) => {
-    const blogger = googleapis_1.google.blogger({ version: 'v3', auth: exports.oauth2Client });
-    try {
-        const response = await blogger.posts.list({ blogId: process.env.BLOG_ID });
-        const posts = response.data.items;
-        res.status(202).json({
-            status: "success",
-            data: posts
-        });
-    }
-    catch (error) {
-        res.status(505).json("Error fetching blog");
-    }
-});
+exports.app.use("/api/v1/posts", postsRouter_1.default);
 //# sourceMappingURL=app.js.map
