@@ -4,7 +4,7 @@ import dotenv from "dotenv" // ENV Variables
 
 import { google } from "googleapis"
 import bodyParser from "body-parser"
-
+import blogRouter from "./routes/blogRouter"
 dotenv.config({path:"./.env"}) //configure path to the env file where we store all the important keys
 
 export const app = express()
@@ -13,7 +13,7 @@ const OAuth2 = google.auth.OAuth2;
 
 
 // Set the OAuth2, for later to generate the refresh token and allow us to access to the Google API
-const oauth2Client = new OAuth2(
+export const oauth2Client = new OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
   'http://localhost:3000/oauth2callback'
@@ -46,17 +46,7 @@ app.use((req:Request, res:Response, next:NextFunction) => {
     next();
   });
 
-app.get('/blogger', async (req:Request, res:Response) => {
-  const blogger = google.blogger({ version: 'v3', auth: oauth2Client });
-  try {
-    const response = await blogger.blogs.get({ blogId: process.env.BLOG_ID });
-    if (response) res.status(202).json(response.data);
-  }catch (error) {
-    console.error('Error fetching blog', error);
-    res.send('Error fetching blog');
-    }
-  });
-  
+app.use("/api/v1/blog", blogRouter)
 app.get("/blogger/posts", async (req:Request, res:Response, next:NextFunction) => {
     const blogger = google.blogger({ version: 'v3', auth: oauth2Client });
     try { 
